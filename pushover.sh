@@ -12,11 +12,11 @@ CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
 
 # Check for required config variables
 if [ -z "${TOKEN}" ]; then
-    echo "TOKEN is unset or empty: Did you create ${CONFIG_FILE}?"
+    echo "TOKEN is unset or empty: Did you create ${CONFIG_FILE}?" >&2
     exit 1
 fi
 if [ -z "${USER}" ]; then
-    echo "USER is unset or empty: Did you create ${CONFIG_FILE}?"
+    echo "USER is unset or empty: Did you create ${CONFIG_FILE}?" >&2
     exit 1
 fi
 

@@ -11,6 +11,10 @@ CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
 . ${CONFIG_FILE}
 
 # Check for required config variables
+if [ ! -x "${CURL}" ]; then
+    echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2
+    exit 1
+fi
 if [ -z "${TOKEN}" ]; then
     echo "TOKEN is unset or empty: Did you create ${CONFIG_FILE}?" >&2
     exit 1

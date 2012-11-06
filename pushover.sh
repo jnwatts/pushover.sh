@@ -3,30 +3,19 @@
 # Default config vars
 CURL="$(which curl)"
 PUSHOVER_URL="https://api.pushover.net/1/messages"
-TOKEN="" # Must be set in pushover.conf
+TOKEN="" # Must be set in pushover.conf or given on command line
 USER="" # Must be set in pushover.conf
 
 # Load user config
 CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
 . ${CONFIG_FILE}
 
-# Check for required config variables
-if [ ! -x "${CURL}" ]; then
-    echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2
-    exit 1
-fi
-if [ -z "${TOKEN}" ]; then
-    echo "TOKEN is unset or empty: Did you create ${CONFIG_FILE}?" >&2
-    exit 1
-fi
-if [ -z "${USER}" ]; then
-    echo "USER is unset or empty: Did you create ${CONFIG_FILE}?" >&2
-    exit 1
-fi
-
 # Functions used elsewhere in this script
 usage() {
-    echo "${0} [-t <title>] [-d <device>] <message>"
+    echo "${0} <options> <message>"
+    echo " -d <device>"
+    echo " -t <title>"
+    echo " -T <token>"
     exit 1
 }
 opt_field() {
@@ -43,11 +32,12 @@ device=""
 title=""
 
 # Option parsing
-optstring="d:t:h"
+optstring="d:t:T:h"
 while getopts ${optstring} c; do
     case ${c} in
         d) device="${OPTARG}" ;;
         t) title="${OPTARG}" ;;
+        T) TOKEN="${OPTARG}" ;;
         [h\?]) usage ;;
     esac
 done
@@ -58,6 +48,20 @@ if [ "$#" -lt 1 ]; then
     usage
 fi
 message="$*"
+
+# Check for required config variables
+if [ ! -x "${CURL}" ]; then
+    echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2
+    exit 1
+fi
+if [ -z "${TOKEN}" ]; then
+    echo "TOKEN is unset or empty: Did you create ${CONFIG_FILE}?" >&2
+    exit 1
+fi
+if [ -z "${USER}" ]; then
+    echo "USER is unset or empty: Did you create ${CONFIG_FILE}?" >&2
+    exit 1
+fi
 
 curl_cmd="\"${CURL}\" -s \
    -F \"token=${TOKEN}\" \

@@ -8,7 +8,12 @@ USER="" # Must be set in pushover.conf
 
 # Load user config
 CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
-. ${CONFIG_FILE}
+if [ -e "${CONFIG_FILE}" ]; then
+    . ${CONFIG_FILE}
+else
+    echo "Can't find ${CONFIG_FILE}: You must create it before using this script" >&2
+    exit 1
+fi
 
 # Functions used elsewhere in this script
 usage() {

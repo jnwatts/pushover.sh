@@ -19,6 +19,7 @@ fi
 usage() {
     echo "${0} <options> <message>"
     echo " -d <device>"
+    echo " -p <priority>"
     echo " -t <title>"
     echo " -T <token>"
     exit 1
@@ -34,13 +35,15 @@ opt_field() {
 
 # Default values for options
 device=""
+priority=""
 title=""
 
 # Option parsing
-optstring="d:t:T:h"
+optstring="d:p:t:T:h"
 while getopts ${optstring} c; do
     case ${c} in
         d) device="${OPTARG}" ;;
+        p) priority="${OPTARG}" ;;
         t) title="${OPTARG}" ;;
         T) TOKEN="${OPTARG}" ;;
         [h\?]) usage ;;
@@ -69,10 +72,12 @@ if [ -z "${USER}" ]; then
 fi
 
 curl_cmd="\"${CURL}\" -s \
-   -F \"token=${TOKEN}\" \
-   -F \"user=${USER}\" \
-   -F \"message=${message}\" \
-   $(opt_field title "${title}") \
-   $(opt_field device "${device}") \
-   ${PUSHOVER_URL} 2>&1 >/dev/null || echo \"$0: Failed to send message\" >&2"
+    -F \"token=${TOKEN}\" \
+    -F \"user=${USER}\" \
+    -F \"message=${message}\" \
+    $(opt_field title "${title}") \
+    $(opt_field device "${device}") \
+    $(opt_field priority "${priority}") \
+    ${PUSHOVER_URL} 2>&1 >/dev/null || echo \"$0: Failed to send message\" >&2"
 eval "${curl_cmd}" 
+

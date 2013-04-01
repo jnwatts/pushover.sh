@@ -8,12 +8,18 @@ USER="" # Must be set in pushover.conf
 
 # Load user config
 CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
-. ${CONFIG_FILE}
+if [ -e "${CONFIG_FILE}" ]; then
+    . ${CONFIG_FILE}
+else
+    echo "Can't find ${CONFIG_FILE}: You must create it before using this script" >&2
+    exit 1
+fi
 
 # Functions used elsewhere in this script
 usage() {
     echo "${0} <options> <message>"
     echo " -d <device>"
+    echo " -p <priority>"
     echo " -t <title>"
     echo " -T <token>"
     exit 1
@@ -29,13 +35,15 @@ opt_field() {
 
 # Default values for options
 device=""
+priority=""
 title=""
 
 # Option parsing
-optstring="d:t:T:h"
+optstring="d:p:t:T:h"
 while getopts ${optstring} c; do
     case ${c} in
         d) device="${OPTARG}" ;;
+        p) priority="${OPTARG}" ;;
         t) title="${OPTARG}" ;;
         T) TOKEN="${OPTARG}" ;;
         [h\?]) usage ;;
@@ -69,5 +77,7 @@ curl_cmd="\"${CURL}\" -s \
     -F \"message=${message}\" \
     $(opt_field title "${title}") \
     $(opt_field device "${device}") \
+    $(opt_field priority "${priority}") \
     ${PUSHOVER_URL} 2>&1 >/dev/null || echo \"$0: Failed to send message\" >&2"
 eval "${curl_cmd}" 
+

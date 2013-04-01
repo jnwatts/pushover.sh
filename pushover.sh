@@ -64,10 +64,10 @@ if [ -z "${USER}" ]; then
 fi
 
 curl_cmd="\"${CURL}\" -s \
-   -F \"token=${TOKEN}\" \
-   -F \"user=${USER}\" \
-   -F \"message=${message}\" \
-   $(opt_field title "${title}") \
-   $(opt_field device "${device}") \
-   ${PUSHOVER_URL} 2>&1 >/dev/null || echo \"$0: Failed to send message\" >&2"
+    -F \"token=${TOKEN}\" \
+    -F \"user=${USER}\" \
+    -F \"message=${message}\" \
+    $(opt_field title "${title}") \
+    $(opt_field device "${device}") \
+    ${PUSHOVER_URL} 2>&1 >/dev/null || echo \"$0: Failed to send message\" >&2"
 eval "${curl_cmd}" 

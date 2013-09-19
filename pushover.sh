@@ -22,6 +22,7 @@ usage() {
     echo " -p <priority>"
     echo " -t <title>"
     echo " -T <token>"
+    echo " -s <sound>"
     exit 1
 }
 opt_field() {
@@ -39,12 +40,13 @@ priority=""
 title=""
 
 # Option parsing
-optstring="d:p:t:T:h"
+optstring="d:p:t:T:s:h"
 while getopts ${optstring} c; do
     case ${c} in
         d) device="${OPTARG}" ;;
         p) priority="${OPTARG}" ;;
         t) title="${OPTARG}" ;;
+        s) sound="${OPTARG}" ;;
         T) TOKEN="${OPTARG}" ;;
         [h\?]) usage ;;
     esac
@@ -75,6 +77,7 @@ curl_cmd="\"${CURL}\" -s \
     -F \"token=${TOKEN}\" \
     -F \"user=${USER}\" \
     -F \"message=${message}\" \
+    $(opt_field sound "${sound}") \
     $(opt_field title "${title}") \
     $(opt_field device "${device}") \
     $(opt_field priority "${priority}") \

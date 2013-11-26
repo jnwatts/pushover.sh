@@ -23,6 +23,8 @@ usage() {
     echo " -t <title>"
     echo " -T <token>"
     echo " -s <sound>"
+    echo " -u <url>"
+    echo " -a <url_title>"
     exit 1
 }
 opt_field() {
@@ -40,13 +42,15 @@ priority=""
 title=""
 
 # Option parsing
-optstring="d:p:t:T:s:h"
+optstring="d:p:t:T:s:u:a:h"
 while getopts ${optstring} c; do
     case ${c} in
         d) device="${OPTARG}" ;;
         p) priority="${OPTARG}" ;;
         t) title="${OPTARG}" ;;
         s) sound="${OPTARG}" ;;
+        u) url="${OPTARG}" ;;
+        a) url_title="${OPTARG}" ;;
         T) TOKEN="${OPTARG}" ;;
         [h\?]) usage ;;
     esac
@@ -78,9 +82,10 @@ curl_cmd="\"${CURL}\" -s \
     -F \"user=${USER}\" \
     -F \"message=${message}\" \
     $(opt_field sound "${sound}") \
+    $(opt_field url "${url}") \
+    $(opt_field url_title "${url_title}") \
     $(opt_field title "${title}") \
     $(opt_field device "${device}") \
     $(opt_field priority "${priority}") \
     ${PUSHOVER_URL} 2>&1 >/dev/null || echo \"$0: Failed to send message\" >&2"
 eval "${curl_cmd}" 
-

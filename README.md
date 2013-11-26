@@ -6,7 +6,7 @@ Shell-script wrapper around curl for sending messages through PushOver
 Usage
 =====
 
-    pushover.sh [-t <title>] [-d <device>] [-p <priority>] [-s <sound>] <message>
+    pushover.sh [-t <title>] [-d <device>] [-p <priority>] [-s <sound>] [-u <url>] [-a <url_title>] <message>
 
 Before you can actually use this script, you must create `${HOME}/.config/pushover.conf` with the following contents:
 

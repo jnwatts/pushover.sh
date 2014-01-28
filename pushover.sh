@@ -37,6 +37,20 @@ opt_field() {
         echo "-F \"${field}=${value}\""
     fi
 }
+validate_user_token() {
+	field="${1}"
+	value="${2}"
+	opt="${3}"
+	ret=1
+	if [ -z "${value}" ]; then
+		echo "${field} is unset or empty: Did you create ${CONFIG_FILE} or specify ${opt} on the command line?" >&2
+	elif ! echo "${value}" | egrep -q '[A-Za-z0-9]{30}'; then
+		echo "Value of ${field}, \"${value}\", does not match expected format. Should be 30 characters of A-Z, a-z and 0-9." >&2;
+	else
+		ret=0
+	fi
+	return ${ret}
+}
 
 # Default values for options
 device=""
@@ -73,14 +87,8 @@ if [ ! -x "${CURL}" ]; then
     echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2
     exit 1
 fi
-if [ -z "${TOKEN}" ]; then
-    echo "TOKEN is unset or empty: create ${CONFIG_FILE} or use -T" >&2
-    exit 1
-fi
-if [ -z "${USER}" ]; then
-    echo "USER is unset or empty: create ${CONFIG_FILE} or use -U" >&2
-    exit 1
-fi
+validate_user_token "TOKEN" "${TOKEN}" "-T" || exit $?
+validate_user_token "USER" "${USER}" "-U" || exit $?
 
 curl_cmd="\"${CURL}\" -s \
     -F \"token=${TOKEN}\" \

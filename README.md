@@ -17,7 +17,15 @@ chmod +x pushover.sh;
 Usage
 =====
 
-    pushover.sh [-d <device>] [-D <timestamp>] [-p <priority>] [-t <title>] [-T <TOKEN>] [-s <sound>] [-u <url>] [-U <USER/GROUP>] [-a <url_title>] <message>
+    pushover.sh <options> <message>
+     -d <device>
+     -D <timestamp>
+     -p <priority>
+     -t <title>
+     -T <TOKEN> (required if not in config file)
+     -s <sound>
+     -u <url>
+     -U <USER> (required if not in config file)
 
 To use this script, you must have TOKEN and USER (or GROUP) keys from [PushOver][1]. These may then be specified on the terminal with `-T` and `-U`, or you may store default values for both in `${HOME}/.config/pushover.conf`. If used, the file must look like:
 

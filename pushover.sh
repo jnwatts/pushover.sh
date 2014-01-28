@@ -19,10 +19,10 @@ usage() {
     echo " -D <timestamp>"
     echo " -p <priority>"
     echo " -t <title>"
-    echo " -T <TOKEN>"
+    echo " -T <TOKEN> (required if not in config file)"
     echo " -s <sound>"
     echo " -u <url>"
-    echo " -U <USER>"
+    echo " -U <USER> (required if not in config file)"
     echo " -a <url_title>"
     exit 1
 }

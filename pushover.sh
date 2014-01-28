@@ -3,8 +3,8 @@
 # Default config vars
 CURL="$(which curl)"
 PUSHOVER_URL="https://api.pushover.net/1/messages.json"
-token="" # May be set in pushover.conf or given on command line
-user="" # May be set in pushover.conf or given on command line
+TOKEN="" # May be set in pushover.conf or given on command line
+USER="" # May be set in pushover.conf or given on command line
 
 # Load user config
 CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
@@ -22,10 +22,10 @@ usage() {
     echo " -D <timestamp>"
     echo " -p <priority>"
     echo " -t <title>"
-    echo " -T <token>"
+    echo " -T <TOKEN>"
     echo " -s <sound>"
     echo " -u <url>"
-    echo " -U <user>"
+    echo " -U <USER>"
     echo " -a <url_title>"
     exit 1
 }
@@ -51,10 +51,10 @@ while getopts ${optstring} c; do
         D) timestamp="${OPTARG}" ;;
         p) priority="${OPTARG}" ;;
         t) title="${OPTARG}" ;;
-        T) token="${OPTARG}" ;;
+        T) TOKEN="${OPTARG}" ;;
         s) sound="${OPTARG}" ;;
         u) url="${OPTARG}" ;;
-        U) user="${OPTARG}" ;;
+        U) USER="${OPTARG}" ;;
         a) url_title="${OPTARG}" ;;
         
         [h\?]) usage ;;
@@ -73,18 +73,18 @@ if [ ! -x "${CURL}" ]; then
     echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2
     exit 1
 fi
-if [ -z "${token}" ]; then
-    echo "token is unset or empty: create ${CONFIG_FILE} or use -T" >&2
+if [ -z "${TOKEN}" ]; then
+    echo "TOKEN is unset or empty: create ${CONFIG_FILE} or use -T" >&2
     exit 1
 fi
-if [ -z "${user}" ]; then
-    echo "user is unset or empty: create ${CONFIG_FILE} or use -U" >&2
+if [ -z "${USER}" ]; then
+    echo "USER is unset or empty: create ${CONFIG_FILE} or use -U" >&2
     exit 1
 fi
 
 curl_cmd="\"${CURL}\" -s \
-    -F \"token=${token}\" \
-    -F \"user=${user}\" \
+    -F \"TOKEN=${TOKEN}\" \
+    -F \"USER=${USER}\" \
     -F \"message=${message}\" \
     $(opt_field device "${device}") \
     $(opt_field timestamp "${timestamp}") \
@@ -92,7 +92,7 @@ curl_cmd="\"${CURL}\" -s \
     $(opt_field title "${title}") \
     $(opt_field sound "${sound}") \
     $(opt_field url "${url}") \
-    $(opt_field user "${user}") \
+    $(opt_field USER "${USER}") \
     $(opt_field url_title "${url_title}")  
     ${PUSHOVER_URL} 2>&1 >/dev/null || echo \"$0: Failed to send message\" >&2"
 eval ${curl_cmd}

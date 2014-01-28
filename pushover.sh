@@ -3,8 +3,8 @@
 # Default config vars
 CURL="$(which curl)"
 PUSHOVER_URL="https://api.pushover.net/1/messages"
-TOKEN="" # Must be set in pushover.conf or given on command line
-USER="" # Must be set in pushover.conf
+TOKEN="" # May be set in pushover.conf or given on command line
+USER="" # May be set in pushover.conf or given on command line
 
 # Load user config
 CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
@@ -19,11 +19,13 @@ fi
 usage() {
     echo "${0} <options> <message>"
     echo " -d <device>"
+    echo " -D <timestamp>"
     echo " -p <priority>"
     echo " -t <title>"
     echo " -T <token>"
     echo " -s <sound>"
     echo " -u <url>"
+    echo " -U <user>"
     echo " -a <url_title>"
     exit 1
 }
@@ -42,16 +44,19 @@ priority=""
 title=""
 
 # Option parsing
-optstring="d:p:t:T:s:u:a:h"
+optstring="d:D:p:t:T:s:u:U:a:h"
 while getopts ${optstring} c; do
     case ${c} in
         d) device="${OPTARG}" ;;
+        D) timestamp="${OPTARG}" ;;
         p) priority="${OPTARG}" ;;
         t) title="${OPTARG}" ;;
+        T) TOKEN="${OPTARG}" ;;
         s) sound="${OPTARG}" ;;
         u) url="${OPTARG}" ;;
+        U) USER="${OPTARG}" ;;
         a) url_title="${OPTARG}" ;;
-        T) TOKEN="${OPTARG}" ;;
+        
         [h\?]) usage ;;
     esac
 done
@@ -69,11 +74,11 @@ if [ ! -x "${CURL}" ]; then
     exit 1
 fi
 if [ -z "${TOKEN}" ]; then
-    echo "TOKEN is unset or empty: Did you create ${CONFIG_FILE}?" >&2
+    echo "TOKEN is unset or empty: Did you create ${CONFIG_FILE}?\nOr use -T" >&2
     exit 1
 fi
 if [ -z "${USER}" ]; then
-    echo "USER is unset or empty: Did you create ${CONFIG_FILE}?" >&2
+    echo "USER is unset or empty: Did you create ${CONFIG_FILE}?\nOr use -U" >&2
     exit 1
 fi
 
@@ -83,9 +88,11 @@ curl_cmd="\"${CURL}\" -s \
     -F \"message=${message}\" \
     $(opt_field sound "${sound}") \
     $(opt_field url "${url}") \
+    $(opt_field user "${USER}") \
     $(opt_field url_title "${url_title}") \
     $(opt_field title "${title}") \
     $(opt_field device "${device}") \
+    $(opt_field timestamp "${timestamp}") \
     $(opt_field priority "${priority}") \
     ${PUSHOVER_URL} 2>&1 >/dev/null || echo \"$0: Failed to send message\" >&2"
 eval "${curl_cmd}" 

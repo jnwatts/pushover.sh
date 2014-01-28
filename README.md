@@ -19,7 +19,7 @@ Usage
 
     pushover.sh [-d <device>] [-D <timestamp>] [-p <priority>] [-t <title>] [-T <TOKEN>] [-s <sound>] [-u <url>] [-U <USER/GROUP>] [-a <url_title>] <message>
 
-Before you can actually use this script, you must create `${HOME}/.config/pushover.conf`. If the `-T` and `-U` options aren't used, this file must be filled with the following contents:
+To use this script, you must have TOKEN and USER (or GROUP) keys from [PushOver][1]. These may then be specified on the terminal with `-T` and `-U`, or you may store default values for both in `${HOME}/.config/pushover.conf`. If used, the file must look like:
 
     TOKEN="your application's token here"
     USER="your user/group key here"

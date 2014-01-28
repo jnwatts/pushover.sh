@@ -70,7 +70,7 @@ while getopts ${optstring} c; do
         u) url="${OPTARG}" ;;
         U) USER="${OPTARG}" ;;
         a) url_title="${OPTARG}" ;;
-        
+
         [h\?]) usage ;;
     esac
 done

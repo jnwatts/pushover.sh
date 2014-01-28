@@ -6,17 +6,23 @@ Shell script wrapper around curl for sending messages through [Pushover][1].
 Installation
 ============
 
-To install `pushover.sh`, run `git clone https://github.com/jnwatts/pushover.sh.git; cd pushover.sh; chmod +x pushover.sh;`
+To install `pushover.sh`, run 
+
+```
+git clone https://github.com/jnwatts/pushover.sh.git;
+cd pushover.sh;
+chmod +x pushover.sh;
+```
 
 Usage
 =====
 
-    pushover.sh [-d <device>] [-D <timestamp>] [-p <priority>] [-t <title>] [-T <TOKEN>] [-s <sound>] [-u <url>] [-U <USER>] [-a <url_title>] <message>
+    pushover.sh [-d <device>] [-D <timestamp>] [-p <priority>] [-t <title>] [-T <TOKEN>] [-s <sound>] [-u <url>] [-U <USER/GROUP>] [-a <url_title>] <message>
 
-Before you can actually use this script, you must create `${HOME}/.config/pushover.conf` with the following contents:
+Before you can actually use this script, you must create `${HOME}/.config/pushover.conf`. If the `-T` and `-U` options aren't used, this file must be filled with the following contents:
 
     TOKEN="your application's token here"
-    USER="your user key here"
+    USER="your user/group key here"
 
 Shell compatibility
 ===================

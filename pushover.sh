@@ -83,8 +83,8 @@ if [ -z "${USER}" ]; then
 fi
 
 curl_cmd="\"${CURL}\" -s \
-    -F \"TOKEN=${TOKEN}\" \
-    -F \"USER=${USER}\" \
+    -F \"token=${TOKEN}\" \
+    -F \"user=${USER}\" \
     -F \"message=${message}\" \
     $(opt_field device "${device}") \
     $(opt_field timestamp "${timestamp}") \
@@ -94,4 +94,4 @@ curl_cmd="\"${CURL}\" -s \
     $(opt_field url "${url}") \
     $(opt_field url_title "${url_title}") \
     ${PUSHOVER_URL} 2>&1 >/dev/null || echo \"$0: Failed to send message\" >&2"
-eval ${curl_cmd}
+eval "${curl_cmd}"

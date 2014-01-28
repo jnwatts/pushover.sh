@@ -11,7 +11,6 @@ To install `pushover.sh`, run `git clone https://github.com/jnwatts/pushover.sh.
 Usage
 =====
 
-    pushover.sh [-t <title>] [-T <token>] [-d <device>] [-D <timestamp>] [-p <priority>] [-s <sound>] [-u <url>] [-U <user>] [-a <url_title>] <message>
 
 Before you can actually use this script, you must create `${HOME}/.config/pushover.conf` with the following contents:
 

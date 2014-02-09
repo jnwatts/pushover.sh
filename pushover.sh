@@ -17,7 +17,9 @@ usage() {
     echo "${0} <options> <message>"
     echo " -d <device>"
     echo " -D <timestamp>"
+    echo " -e <expire>"
     echo " -p <priority>"
+    echo " -r <retry>"
     echo " -t <title>"
     echo " -T <TOKEN> (required if not in config file)"
     echo " -s <sound>"
@@ -55,12 +57,14 @@ priority=""
 title=""
 
 # Option parsing
-optstring="d:D:p:t:T:s:u:U:a:h"
+optstring="d:D:e:p:r:t:T:s:u:U:a:h"
 while getopts ${optstring} c; do
     case ${c} in
         d) device="${OPTARG}" ;;
         D) timestamp="${OPTARG}" ;;
+        e) expire="${OPTARG}" ;;
         p) priority="${OPTARG}" ;;
+        r) retry="${OPTARG}" ;;
         t) title="${OPTARG}" ;;
         T) TOKEN="${OPTARG}" ;;
         s) sound="${OPTARG}" ;;
@@ -94,6 +98,8 @@ curl_cmd="\"${CURL}\" -s \
     $(opt_field device "${device}") \
     $(opt_field timestamp "${timestamp}") \
     $(opt_field priority "${priority}") \
+    $(opt_field retry "${retry}") \
+    $(opt_field timeout "${timeout}") \
     $(opt_field title "${title}") \
     $(opt_field sound "${sound}") \
     $(opt_field url "${url}") \

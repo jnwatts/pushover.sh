@@ -6,7 +6,7 @@ Shell script wrapper around curl for sending messages through [Pushover][1].
 Installation
 ============
 
-To install `pushover.sh`, run 
+To install `pushover.sh`, run
 
 ```
 git clone https://github.com/jnwatts/pushover.sh.git;
@@ -20,7 +20,9 @@ Usage
     pushover.sh <options> <message>
      -d <device>
      -D <timestamp>
+     -e <expire>
      -p <priority>
+     -r <retry>
      -t <title>
      -T <TOKEN> (required if not in config file)
      -s <sound>

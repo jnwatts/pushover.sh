@@ -99,7 +99,7 @@ curl_cmd="\"${CURL}\" -s \
     $(opt_field timestamp "${timestamp}") \
     $(opt_field priority "${priority}") \
     $(opt_field retry "${retry}") \
-    $(opt_field timeout "${timeout}") \
+    $(opt_field expire "${expire}") \
     $(opt_field title "${title}") \
     $(opt_field sound "${sound}") \
     $(opt_field url "${url}") \

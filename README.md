@@ -18,6 +18,7 @@ Usage
 =====
 
     pushover.sh <options> <message>
+     -c <callback>
      -d <device>
      -D <timestamp>
      -e <expire>

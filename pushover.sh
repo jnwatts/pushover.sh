@@ -15,6 +15,7 @@ fi
 # Functions used elsewhere in this script
 usage() {
     echo "${0} <options> <message>"
+    echo " -c <callback>"
     echo " -d <device>"
     echo " -D <timestamp>"
     echo " -e <expire>"
@@ -57,9 +58,10 @@ priority=""
 title=""
 
 # Option parsing
-optstring="d:D:e:p:r:t:T:s:u:U:a:h"
+optstring="c:d:D:e:p:r:t:T:s:u:U:a:h"
 while getopts ${optstring} c; do
     case ${c} in
+        c) callback="${OPTARG}" ;;
         d) device="${OPTARG}" ;;
         D) timestamp="${OPTARG}" ;;
         e) expire="${OPTARG}" ;;
@@ -95,11 +97,12 @@ curl_cmd="\"${CURL}\" -s \
     -F \"token=${TOKEN}\" \
     -F \"user=${USER}\" \
     -F \"message=${message}\" \
+    $(opt_field callback "${callback}") \
     $(opt_field device "${device}") \
     $(opt_field timestamp "${timestamp}") \
     $(opt_field priority "${priority}") \
     $(opt_field retry "${retry}") \
-    $(opt_field timeout "${timeout}") \
+    $(opt_field expire "${expire}") \
     $(opt_field title "${title}") \
     $(opt_field sound "${sound}") \
     $(opt_field url "${url}") \

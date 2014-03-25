@@ -7,7 +7,11 @@ TOKEN="" # May be set in pushover.conf or given on command line
 USER="" # May be set in pushover.conf or given on command line
 
 # Load user config
-CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
+if [ ! -z "${PUSHOVER_CONFIG}" ]; then
+    CONFIG_FILE="${PUSHOVER_CONFIG}"
+else
+    CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
+fi
 if [ -e "${CONFIG_FILE}" ]; then
     . "${CONFIG_FILE}"
 fi

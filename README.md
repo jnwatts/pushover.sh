@@ -30,7 +30,10 @@ Usage
      -u <url>
      -U <USER> (required if not in config file)
 
-To use this script, you must have TOKEN and USER (or GROUP) keys from [PushOver][1]. These may then be specified on the terminal with `-T` and `-U`, or you may store default values for both in `${HOME}/.config/pushover.conf`. If used, the file must look like:
+To use this script, you must have TOKEN and USER (or GROUP) keys from [PushOver][1]. These may then be specified on the terminal with `-T` and `-U`, or you may store default values for both in `${HOME}/.config/pushover.conf`. If you need to override this path, such as for multiple accounts, use the environment variable PUSHOVER_CONFIG with the full path to the desired config file.
+
+Config file format
+==================
 
     TOKEN="your application's token here"
     USER="your user/group key here"

@@ -111,5 +111,9 @@ curl_cmd="\"${CURL}\" -s \
     $(opt_field sound "${sound}") \
     $(opt_field url "${url}") \
     $(opt_field url_title "${url_title}") \
-    \"${PUSHOVER_URL}\" 2>&1 >/dev/null || echo \"$0: Failed to send message\" >&2"
-eval "${curl_cmd}"
+    \"${PUSHOVER_URL}\" 2>&1 >/dev/null"
+
+# execute and return exit code from curl command
+eval "${curl_cmd}" && exit 0 || r=$?
+echo "$0: Failed to send message" >&2
+exit $r

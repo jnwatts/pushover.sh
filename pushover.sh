@@ -93,7 +93,7 @@ fi
 validate_user_token "TOKEN" "${TOKEN}" "-T" || exit $?
 validate_user_token "USER" "${USER}" "-U" || exit $?
 
-curl_cmd="\"${CURL}\" -s \
+curl_cmd="\"${CURL}\" -s -S \
     ${CURL_OPTS} \
     -F \"token=${TOKEN}\" \
     -F \"user=${USER}\" \
@@ -108,9 +108,13 @@ curl_cmd="\"${CURL}\" -s \
     $(opt_field sound "${sound}") \
     $(opt_field url "${url}") \
     $(opt_field url_title "${url_title}") \
-    \"${PUSHOVER_URL}\" 2>&1 >/dev/null"
+    \"${PUSHOVER_URL}\""
 
 # execute and return exit code from curl command
-eval "${curl_cmd}" && exit 0 || r=$?
-echo "$0: Failed to send message" >&2
-exit $r
+response="$(eval "${curl_cmd}")"
+# TODO: Parse response for value of status to give better error to user
+r="${?}"
+if [ "${r}" -ne 0 ]; then
+    echo "${0}: Failed to send message" >&2
+fi
+exit "${r}"

@@ -56,11 +56,6 @@ validate_user_token() {
 	return ${ret}
 }
 
-# Default values for options
-device=""
-priority=""
-title=""
-
 # Option parsing
 optstring="c:d:D:e:p:r:t:T:s:u:U:a:h"
 while getopts ${optstring} c; do

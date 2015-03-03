@@ -5,6 +5,7 @@ CURL="$(which curl)"
 PUSHOVER_URL="https://api.pushover.net/1/messages.json"
 TOKEN="" # May be set in pushover.conf or given on command line
 USER="" # May be set in pushover.conf or given on command line
+CURL_OPTS=""
 
 # Load user config
 if [ ! -z "${PUSHOVER_CONFIG}" ]; then
@@ -93,6 +94,7 @@ validate_user_token "TOKEN" "${TOKEN}" "-T" || exit $?
 validate_user_token "USER" "${USER}" "-U" || exit $?
 
 curl_cmd="\"${CURL}\" -s \
+    ${CURL_OPTS} \
     -F \"token=${TOKEN}\" \
     -F \"user=${USER}\" \
     -F \"message=${message}\" \

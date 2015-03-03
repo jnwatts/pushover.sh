@@ -23,6 +23,7 @@ Usage
      -D <timestamp>
      -e <expire>
      -p <priority>
+	 -P <http://proxy:port/>
      -r <retry>
      -t <title>
      -T <TOKEN> (required if not in config file)

@@ -5,6 +5,7 @@ CURL="$(which curl)"
 PUSHOVER_URL="https://api.pushover.net/1/messages.json"
 TOKEN="" # May be set in pushover.conf or given on command line
 USER="" # May be set in pushover.conf or given on command line
+proxconf=""
 
 # Load user config
 if [ ! -z "${PUSHOVER_CONFIG}" ]; then
@@ -31,6 +32,7 @@ usage() {
     echo " -u <url>"
     echo " -U <USER> (required if not in config file)"
     echo " -a <url_title>"
+	echo " -P <http://proxy:port/>"
     exit 1
 }
 opt_field() {
@@ -57,7 +59,7 @@ validate_user_token() {
 }
 
 # Option parsing
-optstring="c:d:D:e:p:r:t:T:s:u:U:a:h"
+optstring="c:d:D:e:p:r:t:T:s:u:U:a:P:h"
 while getopts ${optstring} c; do
     case ${c} in
         c) callback="${OPTARG}" ;;
@@ -72,6 +74,7 @@ while getopts ${optstring} c; do
         u) url="${OPTARG}" ;;
         U) USER="${OPTARG}" ;;
         a) url_title="${OPTARG}" ;;
+		P) proxconf="${OPTARG}" ;;
 
         [h\?]) usage ;;
     esac
@@ -88,11 +91,28 @@ message="$*"
 if [ ! -x "${CURL}" ]; then
     echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2
     exit 1
+else
+	if ! [ -z "$proxconf" ]
+	then
+		tpconf="$proxconf"
+
+		proxconf="$(echo $proxconf | cut -f 3 -d\/)"
+		proxconf="$(echo $proxconf | cut -f 1 -d\:)"
+
+		chkProxy=$(ping -c 1 $proxconf)
+
+		if [[ "$chkProxy" == *"ping: unknown host"* ]]
+		then
+			proxconf=""	
+		else
+			proxconf="--proxy $tpconf"	
+		fi
+	fi
 fi
 validate_user_token "TOKEN" "${TOKEN}" "-T" || exit $?
 validate_user_token "USER" "${USER}" "-U" || exit $?
 
-curl_cmd="\"${CURL}\" -s \
+curl_cmd="\"${CURL}\" $proxconf -s \
     -F \"token=${TOKEN}\" \
     -F \"user=${USER}\" \
     -F \"message=${message}\" \

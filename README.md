@@ -18,7 +18,9 @@ Usage
 =====
 
     pushover.sh <options> <message>
+	 -A API key conf file
      -c <callback>
+	 -C curl options
      -d <device>
      -D <timestamp>
      -e <expire>
@@ -32,6 +34,31 @@ Usage
      -U <USER> (required if not in config file)
 
 To use this script, you must have TOKEN and USER (or GROUP) keys from [PushOver][1]. These may then be specified on the terminal with `-T` and `-U`, or you may store default values for both in `${HOME}/.config/pushover.conf`. If you need to override this path, such as for multiple accounts, use the environment variable PUSHOVER_CONFIG with the full path to the desired config file.
+
+Sounds:
+    pushover - Pushover (default)
+	bike - Bike
+	bugle - Bugle
+	cashregister - Cash Register
+	classical - Classical
+	cosmic - Cosmic
+	falling - Falling
+	gamelan - Gamelan
+	incoming - Incoming
+	intermission - Intermission
+	magic - Magic
+	mechanical - Mechanical
+	pianobar - Piano Bar
+	siren - Siren
+	spacealarm - Space Alarm
+	tugboat - Tug Boat
+	alien - Alien Alarm (long)
+    climb - Climb (long)
+	persistent - Persistent (long)
+	echo - Pushover Echo (long)
+	updown - Up Down (long)
+	none - None (silent) 
+
 
 Config file format
 ==================

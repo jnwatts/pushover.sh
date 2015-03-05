@@ -104,6 +104,31 @@ if ! [ -z "$APIconfKEY" ]; then
     . "${CONFIG_FILE}"
 fi
 
+if ! [ -z "$device" ]
+then
+	if [ -e "$DEVCONF" ]
+	then
+		tpdev=""
+
+		while read devcLine
+		do
+			tpdev=$(echo "$devcLine" | grep -i $device)
+
+			if ! [ -z "$tpdev" ]
+			then
+				device=$(echo "$tpdev" | cut -f 2 -d\>)
+				break
+			fi
+		done<$DEVCONF
+
+		if [ -z "$tpdev" ]
+		then
+			echo "could not find device"
+			exit 1
+		fi
+	fi
+fi
+
 # Check for required config variables
 if [ ! -x "${CURL}" ]; then
     echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2

@@ -37,6 +37,7 @@ Config file format
 
     TOKEN="your application's token here"
     USER="your user/group key here"
+    CURL_OPTS="options to pass to curl"
 
 Shell compatibility
 ===================

@@ -8,6 +8,10 @@ USER="" # May be set in pushover.conf or given on command line
 CURL_OPTS=""
 PROXCONF="" #Global var for adding a proxy while using curl
 APIconfKEY=""
+devMapper=""
+moreDev="false"
+returnmsg=""
+proxyset="false"
 
 # Load user config
 if [ ! -z "${PUSHOVER_CONFIG}" ]; then
@@ -23,7 +27,7 @@ fi
 usage() {
     echo "${0} <options> <message>"
     echo " -c <callback>"
-    echo " -d <device>"
+    echo " -d <device1>,<device2>,... or allDevices"
     echo " -D <timestamp>"
     echo " -e <expire>"
     echo " -p <priority>"
@@ -60,6 +64,141 @@ validate_user_token() {
 		ret=0
 	fi
 	return ${ret}
+}
+curlproxyconf() {
+	# Check for required config variables
+	if [ ! -x "${CURL}" ]; then
+	    echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2
+	    exit 1
+	fi
+
+	if [ "false" == "$proxyset" ]
+	then
+		if [[ "$CURL_OPTS" != *"--proxy"* ]]
+		then
+			if ! [ -z "$PROXCONF" ]
+			then
+				tpconf=""
+
+				if [ "1" == "$PROXCONF" ]
+				then
+					tpconf=$(export | grep -io "http_proxy.*")
+
+					if [ -z "$tpconf" ]
+					then
+						tpconf=$(export | grep -io "socks_proxy.*")
+					fi
+			
+					tpconf=$(echo "$tpconf" | cut -f 2 -d\= | grep -o [h,s].*[0-9])
+				else
+					tpconf=$(echo "${PROXCONF:1:${#PROXCONF}-2}")
+				fi
+				PROXCONF="$tpconf"
+
+				PROXCONF="$(echo $PROXCONF | cut -f 3 -d\/)"
+				PROXCONF="$(echo $PROXCONF | cut -f 1 -d\:)"
+
+				chkProxy=$(ping -c 1 $PROXCONF)
+
+				if [[ "$chkProxy" == *"ping: unknown host"* ]]
+				then
+					PROXCONF=""
+					echo "The defined proxy could not be found, please check make sure you have entered the right one" >&2
+					exit 1
+				else
+					PROXCONF="--proxy $tpconf"
+				fi
+			fi
+		else
+			PROXCONF=""
+		fi
+		proxyset="true"
+	fi
+}
+exectuePushOver() {
+	curlproxyconf
+	validate_user_token "TOKEN" "${TOKEN}" "-T" || exit $?
+	validate_user_token "USER" "${USER}" "-U" || exit $?
+	
+	curl_cmd="\"${CURL}\" -s -S \
+		${CURL_OPTS} ${PROXCONF} \
+	    -F \"token=${TOKEN}\" \
+	    -F \"user=${USER}\" \
+	    -F \"message=${message}\" \
+	    $(opt_field callback "${callback}") \
+	    $(opt_field device "${devMapper}") \
+	    $(opt_field timestamp "${timestamp}") \
+	    $(opt_field priority "${priority}") \
+	    $(opt_field retry "${retry}") \
+	    $(opt_field expire "${expire}") \
+	    $(opt_field title "${title}") \
+	    $(opt_field sound "${sound}") \
+	    $(opt_field url "${url}") \
+	    $(opt_field url_title "${url_title}") \
+	    \"${PUSHOVER_URL}\" 2>&1 >/dev/null"
+
+	# execute and return exit code from curl command
+	eval "${curl_cmd}"
+	r=$?
+
+	if [ "0" == "$r" -a "false" == "$moreDev" ]
+	then
+		echo "$0: Failed to send message" >&2
+		exit 0
+	fi
+
+	returnmsg="$r"
+
+	if [ "false" == "$moreDev" ]
+	then
+		exit $returnmsg
+	fi
+}
+devcheck() {
+	if [ -e "$DEVCONF" ]
+	then
+		tpdev=""
+
+		while read devcLine
+		do
+			tpdev=$(echo "$devcLine" | grep -i $devMapper)
+
+			if ! [ -z "$tpdev" ]
+			then
+				devMapper=$(echo "$tpdev" | cut -f 2 -d\>)
+				break
+			fi
+		done<$DEVCONF
+
+		if [ -z "$tpdev" ]
+		then
+			devMapper="could not find device: $devMapper"
+		fi
+	fi
+}
+dchkallDevs() {
+	if [ -e "$DEVCONF" ]
+	then
+		tpALL=""
+		tpB=""
+		while read dchkallDevR
+		do
+			tpB=$(echo "$dchkallDevR" | cut -f 2 -d\>)
+			tpALL=$(echo " $tpB$tpALL")
+		done<$DEVCONF
+		
+		tpALL=$(echo "${tpALL:1:${#tpALL}-1}")
+        
+		for devMapper in $tpALL
+        do
+            devcheck
+
+			if ! [[ "$devMapper" == *"could not find device"* ]]
+			then
+				exectuePushOver
+			fi
+        done
+	fi
 }
 
 # Default values for options
@@ -106,95 +245,34 @@ fi
 
 if ! [ -z "$device" ]
 then
-	if [ -e "$DEVCONF" ]
+	if [[ "$device" == *","* ]]
 	then
-		tpdev=""
-
-		while read devcLine
+		moreDev="true"
+		device="${device/,/\ }"
+		for devMapper in $device
 		do
-			tpdev=$(echo "$devcLine" | grep -i $device)
+			devcheck
 
-			if ! [ -z "$tpdev" ]
+			if ! [[ "$devMapper" == *"could not find device"* ]]
 			then
-				device=$(echo "$tpdev" | cut -f 2 -d\>)
-				break
+				exectuePushOver
 			fi
-		done<$DEVCONF
-
-		if [ -z "$tpdev" ]
-		then
-			echo "could not find device"
-			exit 1
-		fi
-	fi
-fi
-
-# Check for required config variables
-if [ ! -x "${CURL}" ]; then
-    echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2
-    exit 1
-fi
-
-if [[ "$CURL_OPTS" != *"--proxy"* ]]
-then
-	if ! [ -z "$PROXCONF" ]
+		done
+		exit 0
+	elif [ "allDevices" == "$device" ]
 	then
-		tpconf=""
+		moreDev="true"
+		dchkallDevs
+	else
+		moreDev="false"
+		devMapper="$device"
+		devcheck
 
-		if [ "1" == "$PROXCONF" ]
+		if ! [[ "$devMapper" == *"could not find device"* ]]
 		then
-			tpconf=$(export | grep -io "http_proxy.*")
-		
-			if [ -z "$tpconf" ]
-			then
-				tpconf=$(export | grep -io "socks_proxy.*")
-			fi
-	
-			tpconf=$(echo "$tpconf" | cut -f 2 -d\= | grep -o [h,s].*[0-9])
-		else
-			tpconf=$(echo "${PROXCONF:1:${#PROXCONF}-2}")
-		fi
-		PROXCONF="$tpconf"
-
-		PROXCONF="$(echo $PROXCONF | cut -f 3 -d\/)"
-		PROXCONF="$(echo $PROXCONF | cut -f 1 -d\:)"
-
-		chkProxy=$(ping -c 1 $PROXCONF)
-
-		if [[ "$chkProxy" == *"ping: unknown host"* ]]
-		then
-			PROXCONF=""	
-			echo "The defined proxy could not be found, please check make sure you have entered the right one" >&2
-			exit 1
-		else
-			PROXCONF="--proxy $tpconf"	
+			exectuePushOver
 		fi
 	fi
-else
-	PROXCONF=""
 fi
 
-validate_user_token "TOKEN" "${TOKEN}" "-T" || exit $?
-validate_user_token "USER" "${USER}" "-U" || exit $?
-
-curl_cmd="\"${CURL}\" -s -S \
-	${CURL_OPTS} ${PROXCONF} \
-    -F \"token=${TOKEN}\" \
-    -F \"user=${USER}\" \
-    -F \"message=${message}\" \
-    $(opt_field callback "${callback}") \
-    $(opt_field device "${device}") \
-    $(opt_field timestamp "${timestamp}") \
-    $(opt_field priority "${priority}") \
-    $(opt_field retry "${retry}") \
-    $(opt_field expire "${expire}") \
-    $(opt_field title "${title}") \
-    $(opt_field sound "${sound}") \
-    $(opt_field url "${url}") \
-    $(opt_field url_title "${url_title}") \
-    \"${PUSHOVER_URL}\" 2>&1 >/dev/null"
-
-# execute and return exit code from curl command
-eval "${curl_cmd}" && exit 0 || r=$?
-echo "$0: Failed to send message" >&2
-exit $r
+exit $returnmsg

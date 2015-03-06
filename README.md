@@ -21,7 +21,7 @@ Usage
 	 -A API key conf file
      -c <callback>
 	 -C curl options
-     -d <device>
+     -d <device1>,<device2>,... or allDevices
      -D <timestamp>
      -e <expire>
      -p <priority>
@@ -34,6 +34,13 @@ Usage
      -U <USER> (required if not in config file)
 
 To use this script, you must have TOKEN and USER (or GROUP) keys from [PushOver][1]. These may then be specified on the terminal with `-T` and `-U`, or you may store default values for both in `${HOME}/.config/pushover.conf`. If you need to override this path, such as for multiple accounts, use the environment variable PUSHOVER_CONFIG with the full path to the desired config file.
+
+Added var to pushover.conf named DEVCONF. This will contain the path to your pushover_allDevices.conf file.
+
+Additional pushover config files:
+	pushover_allDevices.conf > contains a list of all your devices. format> "AliasForDeivce>PushoverDeviceName" e.g MyPhone>nexus6
+	pushover_API/Script/etcName.conf > place your name application script or what ever between the _ and the . and change your token ID. This will allow you to use diffren tokens by using -A
+	pushover_GORUPNAME.conf > contains the group id instead of the user ID
 
 Sounds:
     pushover - Pushover (default)
@@ -53,7 +60,7 @@ Sounds:
 	spacealarm - Space Alarm
 	tugboat - Tug Boat
 	alien - Alien Alarm (long)
-    climb - Climb (long)
+	climb - Climb (long)
 	persistent - Persistent (long)
 	echo - Pushover Echo (long)
 	updown - Up Down (long)

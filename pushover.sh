@@ -6,6 +6,7 @@ PUSHOVER_URL="https://api.pushover.net/1/messages.json"
 TOKEN="" # May be set in pushover.conf or given on command line
 USER="" # May be set in pushover.conf or given on command line
 CURL_OPTS=""
+declare -A device_aliases=()
 
 # Load user config
 if [ ! -z "${PUSHOVER_CONFIG}" ]; then
@@ -42,7 +43,7 @@ opt_field() {
         echo "-F \"${field}=${value}\""
     fi
 }
-validate_user_token() {
+validate_token() {
 	field="${1}"
 	value="${2}"
 	opt="${3}"
@@ -56,13 +57,67 @@ validate_user_token() {
 	fi
 	return ${ret}
 }
+expand_aliases() {
+    BASH_MAJOR="$(echo $BASH_VERSION | cut -d'.' -f1)"
+    if [ "${BASH_MAJOR}" -lt 4 ]; then
+        if [ ! -n "${device_aliases}" ]; then
+            echo "Warning: device_aliases are only support by bash 4+" >&2
+        fi
+        echo "${*}"
+    else
+        for device in ${*}; do
+            expanded="${device_aliases["${device}"]}"
+            if [ -z "${expanded}" ]; then
+                echo "${device}"
+            else
+                echo "${expanded}"
+            fi
+        done
+    fi
+}
+remove_duplicates() {
+    echo ${*} | xargs -n1 | sort -u | uniq
+}
+send_message() {
+    local device="${1:-}"
+
+    curl_cmd="\"${CURL}\" -s -S \
+        ${CURL_OPTS} \
+        -F \"token=${TOKEN}\" \
+        -F \"user=${USER}\" \
+        -F \"message=${message}\" \
+        $(opt_field device "${device}") \
+        $(opt_field callback "${callback}") \
+        $(opt_field timestamp "${timestamp}") \
+        $(opt_field priority "${priority}") \
+        $(opt_field retry "${retry}") \
+        $(opt_field expire "${expire}") \
+        $(opt_field title "${title}") \
+        $(opt_field sound "${sound}") \
+        $(opt_field url "${url}") \
+        $(opt_field url_title "${url_title}") \
+        \"${PUSHOVER_URL}\""
+
+    # execute and return exit code from curl command
+    response="$(eval "${curl_cmd}")"
+    # TODO: Parse response for value of status to give better error to user
+    r="${?}"
+    if [ "${r}" -ne 0 ]; then
+        echo "${0}: Failed to send message" >&2
+    fi
+
+    return "${r}"
+}
+
+# Initialize devices
+devices="${devices} ${device}"
 
 # Option parsing
 optstring="c:d:D:e:p:r:t:T:s:u:U:a:h"
 while getopts ${optstring} c; do
     case ${c} in
         c) callback="${OPTARG}" ;;
-        d) device="${OPTARG}" ;;
+        d) devices="${devices} ${OPTARG}" ;;
         D) timestamp="${OPTARG}" ;;
         e) expire="${OPTARG}" ;;
         p) priority="${OPTARG}" ;;
@@ -90,31 +145,22 @@ if [ ! -x "${CURL}" ]; then
     echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2
     exit 1
 fi
-validate_user_token "TOKEN" "${TOKEN}" "-T" || exit $?
-validate_user_token "USER" "${USER}" "-U" || exit $?
+validate_token "TOKEN" "${TOKEN}" "-T" || exit $?
+validate_token "USER" "${USER}" "-U" || exit $?
 
-curl_cmd="\"${CURL}\" -s -S \
-    ${CURL_OPTS} \
-    -F \"token=${TOKEN}\" \
-    -F \"user=${USER}\" \
-    -F \"message=${message}\" \
-    $(opt_field callback "${callback}") \
-    $(opt_field device "${device}") \
-    $(opt_field timestamp "${timestamp}") \
-    $(opt_field priority "${priority}") \
-    $(opt_field retry "${retry}") \
-    $(opt_field expire "${expire}") \
-    $(opt_field title "${title}") \
-    $(opt_field sound "${sound}") \
-    $(opt_field url "${url}") \
-    $(opt_field url_title "${url_title}") \
-    \"${PUSHOVER_URL}\""
+devices="$(expand_aliases ${devices})"
+devices="$(remove_duplicates ${devices})"
 
-# execute and return exit code from curl command
-response="$(eval "${curl_cmd}")"
-# TODO: Parse response for value of status to give better error to user
-r="${?}"
-if [ "${r}" -ne 0 ]; then
-    echo "${0}: Failed to send message" >&2
+if [ -z "${devices}" ]; then
+    send_message
+    r=${?}
+else
+    for device in ${devices}; do
+        send_message "${device}"
+        r=${?}
+        if [ "${r}" -ne 0 ]; then
+            break;
+        fi
+    done
 fi
 exit "${r}"

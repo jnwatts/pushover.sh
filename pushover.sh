@@ -56,6 +56,9 @@ validate_token() {
 	fi
 	return ${ret}
 }
+remove_duplicates() {
+    echo ${*} | xargs -n1 | sort -u | uniq
+}
 send_message() {
     local device="${1:-}"
 
@@ -87,12 +90,15 @@ send_message() {
     return "${r}"
 }
 
+# Initialize devices
+devices="${devices} ${device}"
+
 # Option parsing
 optstring="c:d:D:e:p:r:t:T:s:u:U:a:h"
 while getopts ${optstring} c; do
     case ${c} in
         c) callback="${OPTARG}" ;;
-        d) device="${OPTARG}" ;;
+        d) devices="${devices} ${OPTARG}" ;;
         D) timestamp="${OPTARG}" ;;
         e) expire="${OPTARG}" ;;
         p) priority="${OPTARG}" ;;
@@ -123,5 +129,18 @@ fi
 validate_token "TOKEN" "${TOKEN}" "-T" || exit $?
 validate_token "USER" "${USER}" "-U" || exit $?
 
-send_message "${device}"
-exit "${?}"
+devices="$(remove_duplicates ${devices})"
+
+if [ -z "${devices}" ]; then
+    send_message
+    r=${?}
+else
+    for device in ${devices}; do
+        send_message "${device}"
+        r=${?}
+        if [ "${r}" -ne 0 ]; then
+            break;
+        fi
+    done
+fi
+exit "${r}"

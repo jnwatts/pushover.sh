@@ -42,7 +42,7 @@ opt_field() {
         echo "-F \"${field}=${value}\""
     fi
 }
-validate_user_token() {
+validate_token() {
 	field="${1}"
 	value="${2}"
 	opt="${3}"
@@ -90,8 +90,8 @@ if [ ! -x "${CURL}" ]; then
     echo "CURL is unset, empty, or does not point to curl executable. This script requires curl!" >&2
     exit 1
 fi
-validate_user_token "TOKEN" "${TOKEN}" "-T" || exit $?
-validate_user_token "USER" "${USER}" "-U" || exit $?
+validate_token "TOKEN" "${TOKEN}" "-T" || exit $?
+validate_token "USER" "${USER}" "-U" || exit $?
 
 curl_cmd="\"${CURL}\" -s -S \
     ${CURL_OPTS} \

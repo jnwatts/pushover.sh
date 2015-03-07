@@ -56,6 +56,36 @@ validate_token() {
 	fi
 	return ${ret}
 }
+send_message() {
+    local device="${1:-}"
+
+    curl_cmd="\"${CURL}\" -s -S \
+        ${CURL_OPTS} \
+        -F \"token=${TOKEN}\" \
+        -F \"user=${USER}\" \
+        -F \"message=${message}\" \
+        $(opt_field device "${device}") \
+        $(opt_field callback "${callback}") \
+        $(opt_field timestamp "${timestamp}") \
+        $(opt_field priority "${priority}") \
+        $(opt_field retry "${retry}") \
+        $(opt_field expire "${expire}") \
+        $(opt_field title "${title}") \
+        $(opt_field sound "${sound}") \
+        $(opt_field url "${url}") \
+        $(opt_field url_title "${url_title}") \
+        \"${PUSHOVER_URL}\""
+
+    # execute and return exit code from curl command
+    response="$(eval "${curl_cmd}")"
+    # TODO: Parse response for value of status to give better error to user
+    r="${?}"
+    if [ "${r}" -ne 0 ]; then
+        echo "${0}: Failed to send message" >&2
+    fi
+
+    return "${r}"
+}
 
 # Option parsing
 optstring="c:d:D:e:p:r:t:T:s:u:U:a:h"
@@ -93,28 +123,5 @@ fi
 validate_token "TOKEN" "${TOKEN}" "-T" || exit $?
 validate_token "USER" "${USER}" "-U" || exit $?
 
-curl_cmd="\"${CURL}\" -s -S \
-    ${CURL_OPTS} \
-    -F \"token=${TOKEN}\" \
-    -F \"user=${USER}\" \
-    -F \"message=${message}\" \
-    $(opt_field callback "${callback}") \
-    $(opt_field device "${device}") \
-    $(opt_field timestamp "${timestamp}") \
-    $(opt_field priority "${priority}") \
-    $(opt_field retry "${retry}") \
-    $(opt_field expire "${expire}") \
-    $(opt_field title "${title}") \
-    $(opt_field sound "${sound}") \
-    $(opt_field url "${url}") \
-    $(opt_field url_title "${url_title}") \
-    \"${PUSHOVER_URL}\""
-
-# execute and return exit code from curl command
-response="$(eval "${curl_cmd}")"
-# TODO: Parse response for value of status to give better error to user
-r="${?}"
-if [ "${r}" -ne 0 ]; then
-    echo "${0}: Failed to send message" >&2
-fi
-exit "${r}"
+send_message "${device}"
+exit "${?}"

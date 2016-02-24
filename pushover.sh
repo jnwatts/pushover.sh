@@ -6,7 +6,12 @@ PUSHOVER_URL="https://api.pushover.net/1/messages.json"
 TOKEN="" # May be set in pushover.conf or given on command line
 USER="" # May be set in pushover.conf or given on command line
 CURL_OPTS=""
-declare -A device_aliases=()
+BASH_MAJOR="$(echo $BASH_VERSION | cut -d'.' -f1)"
+if [ "${BASH_MAJOR}" -lt 4 ]; then
+    device_aliases=""
+else
+    declare -A device_aliases=()
+fi
 
 # Load user config
 if [ ! -z "${PUSHOVER_CONFIG}" ]; then
@@ -58,7 +63,6 @@ validate_token() {
 	return ${ret}
 }
 expand_aliases() {
-    BASH_MAJOR="$(echo $BASH_VERSION | cut -d'.' -f1)"
     if [ "${BASH_MAJOR}" -lt 4 ]; then
         if [ ! -z "${device_aliases}" ]; then
             echo "Warning: device_aliases are only support by bash 4+" >&2

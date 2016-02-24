@@ -60,7 +60,7 @@ validate_token() {
 expand_aliases() {
     BASH_MAJOR="$(echo $BASH_VERSION | cut -d'.' -f1)"
     if [ "${BASH_MAJOR}" -lt 4 ]; then
-        if [ ! -n "${device_aliases}" ]; then
+        if [ ! -z "${device_aliases}" ]; then
             echo "Warning: device_aliases are only support by bash 4+" >&2
         fi
         echo "${*}"

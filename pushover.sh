@@ -14,14 +14,18 @@ else
 fi
 
 # Load user config
-if [ ! -z "${PUSHOVER_CONFIG}" ]; then
-    CONFIG_FILE="${PUSHOVER_CONFIG}"
-else
-    CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
-fi
-if [ -e "${CONFIG_FILE}" ]; then
-    . "${CONFIG_FILE}"
-fi
+read_config() {
+    if [ ! -z "${config}" ]; then
+        CONFIG_FILE="${config}"
+    elif [ ! -z "${PUSHOVER_CONFIG}" ]; then
+        CONFIG_FILE="${PUSHOVER_CONFIG}"
+    else
+        CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
+    fi
+    if [ -e "${CONFIG_FILE}" ]; then
+        . "${CONFIG_FILE}"
+    fi
+}
 
 # Functions used elsewhere in this script
 usage() {
@@ -30,6 +34,7 @@ usage() {
     echo " -d <device>"
     echo " -D <timestamp>"
     echo " -e <expire>"
+    echo " -f <config file>"
     echo " -p <priority>"
     echo " -r <retry>"
     echo " -t <title>"
@@ -117,7 +122,18 @@ send_message() {
 devices="${devices} ${device}"
 
 # Option parsing
-optstring="c:d:D:e:p:r:t:T:s:u:U:a:h"
+# We allow options to override the config file, so we process and load it first
+optstring="c:d:D:e:f:p:r:t:T:s:u:U:a:h"
+while getopts ${optstring} c; do
+    case ${c} in
+        f) config="${OPTARG}" ;;
+    esac
+done
+
+# Read configuration so that overrides can take precedence
+read_config
+
+OPTIND=1
 while getopts ${optstring} c; do
     case ${c} in
         c) callback="${OPTARG}" ;;

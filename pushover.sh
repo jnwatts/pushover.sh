@@ -13,20 +13,6 @@ else
     declare -A device_aliases=()
 fi
 
-# Load user config
-read_config() {
-    if [ ! -z "${config}" ]; then
-        CONFIG_FILE="${config}"
-    elif [ ! -z "${PUSHOVER_CONFIG}" ]; then
-        CONFIG_FILE="${PUSHOVER_CONFIG}"
-    else
-        CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
-    fi
-    if [ -e "${CONFIG_FILE}" ]; then
-        . "${CONFIG_FILE}"
-    fi
-}
-
 # Functions used elsewhere in this script
 usage() {
     echo "${0} <options> <message>"
@@ -126,13 +112,21 @@ devices="${devices} ${device}"
 optstring="c:d:D:e:f:p:r:t:T:s:u:U:a:h"
 while getopts ${optstring} c; do
     case ${c} in
-        f) config="${OPTARG}" ;;
+        f) PUSHOVER_CONFIG="${OPTARG}" ;;
     esac
 done
 
-# Read configuration so that overrides can take precedence
-read_config
+# Load user config
+if [ ! -z "${PUSHOVER_CONFIG}" ]; then
+    CONFIG_FILE="${PUSHOVER_CONFIG}"
+else
+    CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
+fi
+if [ -e "${CONFIG_FILE}" ]; then
+    . "${CONFIG_FILE}"
+fi
 
+# Process the remaining options
 OPTIND=1
 while getopts ${optstring} c; do
     case ${c} in

@@ -1,7 +1,9 @@
 pushover.sh
 ===========
 
-Shell script wrapper around curl for sending messages through [Pushover][1].
+Shell script wrapper around curl for sending messages through [Pushover][1]. This is an unofficial script which is not released or supported by Superblock. All requests directly related to this script should be addressed through the [Github issue tracker][2].
+
+
 
 Installation
 ============
@@ -46,3 +48,4 @@ Shell compatibility
 A word of warning: I use bash (as in real bash, not dash) on all of my machines and I have a tendency to forget what syntax is cross-shell compatible. If things behave very strangely for you, this is very likely the first thing you should check. Better yet, if you know a better way a particular line could be implemented, don't hesitate to submit a patch. I would really like for this script to someday work on bash, dash and sh equally. :-)
 
 [1]: http://www.pushover.net
+[2]: https://github.com/jnwatts/pushover.sh/issues

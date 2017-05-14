@@ -25,6 +25,7 @@ usage() {
     echo " -r <retry>"
     echo " -t <title>"
     echo " -T <TOKEN> (required if not in config file)"
+    echo " -M <msg_file>"
     echo " -s <sound>"
     echo " -u <url>"
     echo " -U <USER> (required if not in config file)"
@@ -76,6 +77,13 @@ remove_duplicates() {
 send_message() {
     local device="${1:-}"
 
+    if [ "$msg_file" != "" ] ; then
+	if [ ! -f "$msg_file" ] ; then
+	    echo "failed to read message file: $msg_file"
+	    exit 1
+	fi
+	message="$message `cat $msg_file`"
+    fi	
     curl_cmd="\"${CURL}\" -s -S \
         ${CURL_OPTS} \
         -F \"token=${TOKEN}\" \
@@ -109,7 +117,7 @@ devices="${devices} ${device}"
 
 # Option parsing
 # We allow options to override the config file, so we process and load it first
-optstring="c:d:D:e:f:p:r:t:T:s:u:U:a:h"
+optstring="c:d:D:e:f:p:r:t:T:s:u:U:a:M:h"
 while getopts ${optstring} c; do
     case ${c} in
         f) PUSHOVER_CONFIG="${OPTARG}" ;;
@@ -139,6 +147,7 @@ while getopts ${optstring} c; do
         t) title="${OPTARG}" ;;
         T) TOKEN="${OPTARG}" ;;
         s) sound="${OPTARG}" ;;
+        M) msg_file="${OPTARG}" ;;
         u) url="${OPTARG}" ;;
         U) USER="${OPTARG}" ;;
         a) url_title="${OPTARG}" ;;

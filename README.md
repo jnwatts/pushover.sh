@@ -31,9 +31,12 @@ Usage
      -T <TOKEN> (required if not in config file)
      -s <sound>
      -u <url>
+     -m <msg_file>
      -U <USER> (required if not in config file)
 
 To use this script, you must have TOKEN and USER (or GROUP) keys from [PushOver][1]. These may then be specified on the terminal with `-T` and `-U`, or you may store default values for both in `${HOME}/.config/pushover.conf`. If you need to override this path, such as for multiple accounts, either specify the config file as a parameter using `-f` or use the environment variable PUSHOVER_CONFIG with the full path to the desired config file.
+
+The message can be passed as arguments on the command line, or by using the -m switch to load the message from a file. 
 
 Config file format
 ==================

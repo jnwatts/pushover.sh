@@ -77,13 +77,6 @@ remove_duplicates() {
 send_message() {
     local device="${1:-}"
 
-    if [ "$msg_file" != "" ] ; then
-	if [ ! -f "$msg_file" ] ; then
-	    echo "failed to read message file: $msg_file"
-	    exit 1
-	fi
-	message="$message `cat $msg_file`"
-    fi	
     curl_cmd="\"${CURL}\" -s -S \
         ${CURL_OPTS} \
         -F \"token=${TOKEN}\" \
@@ -117,7 +110,7 @@ devices="${devices} ${device}"
 
 # Option parsing
 # We allow options to override the config file, so we process and load it first
-optstring="c:d:D:e:f:p:r:t:T:s:u:U:a:M:h"
+optstring="c:d:D:e:f:p:r:t:T:s:u:U:a:m:h"
 while getopts ${optstring} c; do
     case ${c} in
         f) PUSHOVER_CONFIG="${OPTARG}" ;;
@@ -147,7 +140,7 @@ while getopts ${optstring} c; do
         t) title="${OPTARG}" ;;
         T) TOKEN="${OPTARG}" ;;
         s) sound="${OPTARG}" ;;
-        M) msg_file="${OPTARG}" ;;
+        m) msg_file="${OPTARG}" ;;
         u) url="${OPTARG}" ;;
         U) USER="${OPTARG}" ;;
         a) url_title="${OPTARG}" ;;
@@ -158,10 +151,19 @@ done
 shift $((OPTIND-1))
 
 # Is there anything left?
-if [ "$#" -lt 1 ]; then
+if [ "$#" -lt 1 -a "$msg_file" = "" ]; then
     usage
 fi
 message="$*"
+
+# load the rest of the message from the file
+if [ "$msg_file" != "" ] ; then
+    if [ ! -f "$msg_file" ] ; then
+	echo "failed to read message file: $msg_file"
+	exit 1
+    fi
+    message="$message `cat $msg_file`"
+fi	
 
 # Check for required config variables
 if [ ! -x "${CURL}" ]; then

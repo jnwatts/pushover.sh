@@ -25,7 +25,7 @@ usage() {
     echo " -r <retry>"
     echo " -t <title>"
     echo " -T <TOKEN> (required if not in config file)"
-    echo " -M <msg_file>"
+    echo " -m <msg_file>"
     echo " -s <sound>"
     echo " -u <url>"
     echo " -U <USER> (required if not in config file)"

@@ -121,7 +121,7 @@ done
 if [ ! -z "${PUSHOVER_CONFIG}" ]; then
     CONFIG_FILE="${PUSHOVER_CONFIG}"
 else
-    CONFIG_FILE="/etc/pushover.conf"
+    CONFIG_FILE="${XDG_CONFIG_HOME-${HOME}/.config}/pushover.conf"
 fi
 if [ -e "${CONFIG_FILE}" ]; then
     . "${CONFIG_FILE}"

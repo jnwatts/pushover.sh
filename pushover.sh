@@ -47,7 +47,7 @@ validate_token() {
 	ret=1
 	if [ -z "${value}" ]; then
 		echo "${field} is unset or empty: Did you create ${CONFIG_FILE} or specify ${opt} on the command line?" >&2
-	elif ! echo "${value}" | egrep -q '[A-Za-z0-9]{30}'; then
+	elif ! echo "${value}" | grep -q -E '[A-Za-z0-9]{30}'; then
 		echo "Value of ${field}, \"${value}\", does not match expected format. Should be 30 characters of A-Z, a-z and 0-9." >&2;
 	else
 		ret=0
